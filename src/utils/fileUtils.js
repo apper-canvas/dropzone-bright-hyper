@@ -37,9 +37,8 @@ export const getFileIcon = (fileType) => {
   }
 };
 
-export const isValidFileType = (file) => {
-  const maxSize = 100 * 1024 * 1024; // 100MB
-  const allowedTypes = [
+export const getAllowedFileTypes = () => {
+  return [
     "image/*",
     "video/*",
     "audio/*",
@@ -50,12 +49,46 @@ export const isValidFileType = (file) => {
     "application/msword",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   ];
+};
+
+export const isValidFileType = (file, allowedTypes = null) => {
+  const maxSize = 100 * 1024 * 1024; // 100MB
+  const typesToCheck = allowedTypes || getAllowedFileTypes();
   
   if (file.size > maxSize) {
     return { valid: false, error: "File size must be less than 100MB" };
   }
+
+  // Check if file type is allowed
+  const fileType = file.type.toLowerCase();
+  const isAllowed = typesToCheck.some(allowedType => {
+    if (allowedType === '*/*') return true;
+    if (allowedType.endsWith('/*')) {
+      const category = allowedType.replace('/*', '');
+      return fileType.startsWith(category + '/');
+    }
+    return fileType === allowedType.toLowerCase();
+  });
+
+  if (!isAllowed) {
+    const filterName = getFilterName(typesToCheck);
+    return { valid: false, error: `File type not allowed. Current filter: ${filterName}` };
+  }
   
   return { valid: true, error: null };
+};
+
+const getFilterName = (types) => {
+  if (types.includes('*/*')) return 'All Files';
+  if (types.length === 1) {
+    if (types[0] === 'image/*') return 'Images Only';
+    if (types[0] === 'video/*') return 'Videos Only';
+    if (types[0] === 'audio/*') return 'Audio Only';
+  }
+  if (types.includes('image/*') && types.includes('video/*') && types.includes('audio/*')) {
+    return 'Media Files';
+  }
+  return 'Custom Filter';
 };
 
 export const generateFileId = () => {
