@@ -1,8 +1,12 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
+import { useSelector } from 'react-redux';
 import ApperIcon from "@/components/ApperIcon";
 import Button from "@/components/atoms/Button";
+import { AuthContext } from "../../App";
 
 const Header = ({ settings, onSettingsChange }) => {
+  const { logout } = useContext(AuthContext);
+  const { user, isAuthenticated } = useSelector((state) => state.user);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const settingsRef = useRef(null);
 
@@ -54,7 +58,7 @@ const Header = ({ settings, onSettingsChange }) => {
           </div>
 
 {/* Navigation & Settings */}
-          <div className="flex items-center gap-6">
+<div className="flex items-center gap-6">
             <nav className="hidden md:flex items-center gap-8">
               <a 
                 href="#features" 
@@ -73,6 +77,24 @@ const Header = ({ settings, onSettingsChange }) => {
                 <span>Secure Upload</span>
               </div>
             </nav>
+
+            {/* User Profile and Logout */}
+            {isAuthenticated && user && (
+              <div className="flex items-center gap-3">
+                <div className="text-sm text-gray-600">
+                  Welcome, {user.firstName || user.name || 'User'}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={logout}
+                  className="gap-2"
+                >
+                  <ApperIcon name="LogOut" size={14} />
+                  Logout
+                </Button>
+              </div>
+            )}
 
             {/* Settings Dropdown */}
             <div className="relative" ref={settingsRef}>

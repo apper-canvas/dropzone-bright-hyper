@@ -36,16 +36,16 @@ export const useFileUpload = () => {
       const preview = await createFilePreview(file);
 
       const fileObject = {
-        id: fileId,
+id: fileId,
         name: file.name,
         size: file.size,
         type: file.type,
         fileType,
-        status: "pending",
-        progress: 0,
-        uploadedAt: null,
-        url: null,
-        preview,
+        status_c: "pending",
+        progress_c: 0,
+        uploaded_at_c: null,
+        url_c: null,
+        preview_c: preview,
         file, // Keep reference to original file
       };
 
@@ -79,28 +79,64 @@ export const useFileUpload = () => {
     );
 
     try {
-      const file = files.find(f => f.id === fileId);
+const file = files.find(f => f.id === fileId);
       if (!file) return;
 
-      const result = await simulateUpload(file.file, (progress) => {
+      // Update status to uploading
+      setFiles(prev => 
+        prev.map(f => 
+          f.id === fileId 
+            ? { ...f, status_c: "uploading" }
+            : f
+        )
+      );
+
+      // Simulate progress for UI (since real upload progress tracking would require server support)
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        progress += Math.random() * 15 + 5;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(progressInterval);
+        }
+        
         setFiles(prev => 
           prev.map(f => 
             f.id === fileId 
-              ? { ...f, progress }
+              ? { ...f, progress_c: Math.round(progress) }
               : f
           )
         );
-      });
+      }, 100 + Math.random() * 200);
+
+      // Create upload record in database
+      const { uploadService } = await import('@/services/api/uploadService');
+      
+      const uploadData = {
+        name: file.name,
+        file_id_c: file.id,
+        size_c: file.size,
+        type_c: file.type,
+        file_type_c: file.fileType,
+        status_c: "completed",
+        progress_c: 100,
+        uploaded_at_c: new Date().toISOString(),
+        url_c: URL.createObjectURL(file.file),
+        preview_c: file.preview_c
+      };
+
+      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000)); // Simulate upload time
+      const result = await uploadService.createUpload(uploadData);
 
       setFiles(prev => 
         prev.map(f => 
           f.id === fileId 
             ? { 
                 ...f, 
-                status: "completed", 
-                progress: 100,
-                uploadedAt: result.uploadedAt,
-                url: result.url
+                status_c: "completed", 
+                progress_c: 100,
+                uploaded_at_c: result.uploaded_at_c,
+                url_c: result.url_c
               }
             : f
         )
@@ -118,7 +154,7 @@ export const useFileUpload = () => {
       setFiles(prev => 
         prev.map(f => 
           f.id === fileId 
-            ? { ...f, status: "failed", progress: 0 }
+            ? { ...f, status_c: "failed", progress_c: 0 }
             : f
         )
       );

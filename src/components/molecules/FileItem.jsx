@@ -13,8 +13,8 @@ const FileItem = ({
   className,
   ...props 
 }) => {
-  const getStatusBadge = () => {
-    switch (file.status) {
+const getStatusBadge = () => {
+    switch (file.status_c) {
       case "pending":
         return <Badge variant="default">Pending</Badge>;
       case "uploading":
@@ -24,12 +24,12 @@ const FileItem = ({
       case "failed":
         return <Badge variant="error">Failed</Badge>;
       default:
-        return <Badge variant="default">{file.status}</Badge>;
+        return <Badge variant="default">{file.status_c}</Badge>;
     }
   };
 
-  const getStatusIcon = () => {
-    switch (file.status) {
+const getStatusIcon = () => {
+    switch (file.status_c) {
       case "pending":
         return <ApperIcon name="Clock" className="w-4 h-4 text-gray-500" />;
       case "uploading":
@@ -60,10 +60,10 @@ const FileItem = ({
       <div className="flex items-start gap-3">
         {/* File Preview/Icon */}
         <div className="flex-shrink-0">
-          {file.preview ? (
+{file.preview_c ? (
             <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
               <img 
-                src={file.preview} 
+                src={file.preview_c} 
                 alt={file.name}
                 className="w-full h-full object-cover"
               />
@@ -100,10 +100,10 @@ const FileItem = ({
           </div>
 
           {/* Progress Bar */}
-          {file.status === "uploading" && (
+{file.status_c === "uploading" && (
             <div className="mt-3">
               <ProgressBar 
-                value={file.progress} 
+                value={file.progress_c} 
                 showValue={true}
                 size="sm"
                 variant="default"
@@ -112,16 +112,16 @@ const FileItem = ({
           )}
 
           {/* Upload Complete Info */}
-          {file.status === "completed" && file.uploadedAt && (
+{file.status_c === "completed" && file.uploaded_at_c && (
             <p className="text-xs text-green-600 mt-2">
-              Uploaded {new Date(file.uploadedAt).toLocaleTimeString()}
+              Uploaded {new Date(file.uploaded_at_c).toLocaleTimeString()}
             </p>
           )}
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-1">
-          {file.status === "failed" && (
+{file.status_c === "failed" && (
             <Button
               size="icon"
               variant="ghost"

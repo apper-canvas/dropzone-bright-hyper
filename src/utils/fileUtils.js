@@ -108,34 +108,4 @@ export const createFilePreview = (file) => {
   });
 };
 
-export const simulateUpload = (file, onProgress) => {
-  return new Promise((resolve, reject) => {
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.random() * 15 + 5; // Random progress increment
-      
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        
-        // Simulate occasional failures
-        if (Math.random() < 0.1) {
-          reject(new Error("Upload failed"));
-        } else {
-          resolve({
-            id: generateFileId(),
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            status: "completed",
-            progress: 100,
-            uploadedAt: Date.now(),
-            url: URL.createObjectURL(file),
-          });
-        }
-      } else {
-        onProgress(Math.round(progress));
-      }
-    }, 100 + Math.random() * 200); // Random interval
-  });
-};
+// simulateUpload function removed - replaced by database integration via uploadService
